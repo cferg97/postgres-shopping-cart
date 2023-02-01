@@ -14,8 +14,8 @@ productsRouter.get("/", async (req, res, next) => {
     if (req.query.category) {
       query.category = { [Op.iLike]: `${req.query.category}` };
     }
-    if (req.query.price) {
-      query.price = { [Op.gte]: `${req.query.price}` };
+    if (req.query.priceMax) {
+      query.price = { [Op.lte]: `${req.query.priceMax}` };
     }
     if (req.query.priceMin && req.query.priceMax) {
       query.price = {
@@ -28,7 +28,15 @@ productsRouter.get("/", async (req, res, next) => {
 
     const products = await productsModel.findAll({
       where: { ...query },
-      attributes: ["id", "name", "brand", "price", "imageUrl"],
+      attributes: [
+        "id",
+        "name",
+        "category",
+        "brand",
+        "description",
+        "price",
+        "imageUrl",
+      ],
     });
     res.send(products);
   } catch (err) {
