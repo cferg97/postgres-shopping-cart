@@ -37,20 +37,70 @@ productsRouter.get("/", async (req, res, next) => {
 });
 
 productsRouter.get("/:productid", async (req, res, next) => {
-    try{
-        const product = await productsModel.findByPk(req.params.productid, {
-            attributes: {exclude: ["createdAt", "updatedAt"]}
-        })
-        if(product){
-            
-        }
+  try {
+    const product = await productsModel.findByPk(req.params.productid, {
+      attributes: { exclude: ["createdAt", "updatedAt"] },
+    });
+    if (product) {
+      res.send(product);
+    } else {
+      next(
+        createHttpError(
+          404,
+          `Product not found with ID ${req.params.productid}`
+        )
+      );
     }
-})
+  } catch (err) {
+    next(err);
+  }
+});
 
 productsRouter.post("/", async (req, res, next) => {
   try {
     const { id } = await productsModel.create(req.body);
     res.status(201).send({ id });
+  } catch (err) {
+    next(err);
+  }
+});
+
+productsRouter.put("/:productid", async (req, res, next) => {
+  try {
+    const [updatedRows, updatedRecords] = await productsModel.update(req.body, {
+      where: { id: req.params.productid },
+      returning: true,
+    });
+    if (updatedRows === 1) {
+      res.send(updatedRecords[0]);
+    } else {
+      next(
+        createHttpError(
+          404,
+          `Product with ID ${req.params.productid} not found`
+        )
+      );
+    }
+  } catch (err) {
+    next(err);
+  }
+});
+
+productsRouter.delete("/:productid", async (req, res, next) => {
+  try {
+    const deletedRows = await productsModel.destroy({
+      where: { id: req.params.productid },
+    });
+    if (deletedRows === 1) {
+      res.status(204).send();
+    } else {
+      next(
+        createHttpError(
+          404,
+          `Product with ID ${req.params.productid} not found`
+        )
+      );
+    }
   } catch (err) {
     next(err);
   }
