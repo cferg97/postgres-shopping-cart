@@ -14,8 +14,8 @@ categoriesRouter.post("/", async (req, res, next) => {
 
 categoriesRouter.get("/", async (req, res, next) => {
   try {
-    const categories = await categoriesModel.findAll();
-    res.send(categories);
+    const category = await categoriesModel.findAll();
+    res.send(category);
   } catch (err) {
     next(err);
   }

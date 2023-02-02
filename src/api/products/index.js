@@ -1,7 +1,9 @@
 import express from "express";
 import createHttpError from "http-errors";
 import { Op } from "sequelize";
+import categoriesModel from "./category/model.js";
 import productsModel from "./model.js";
+import productsCategoriesModel from "./productsCategoryModel.js";
 
 const productsRouter = express.Router();
 
@@ -29,13 +31,20 @@ productsRouter.get("/", async (req, res, next) => {
     const products = await productsModel.findAll({
       where: { ...query },
       attributes: [
-        "id",
+        "productId",
         "name",
-        "category",
+        // "category",
         "brand",
         "description",
         "price",
         "imageUrl",
+      ],
+      include: [
+        {
+          model: categoriesModel,
+          attributes: ["name"],
+          through: { attributes: [] },
+        },
       ],
     });
     res.send(products);
@@ -66,8 +75,24 @@ productsRouter.get("/:productid", async (req, res, next) => {
 
 productsRouter.post("/", async (req, res, next) => {
   try {
-    const { id } = await productsModel.create(req.body);
-    res.status(201).send({ id });
+    const { productId } = await productsModel.create(req.body);
+    if (req.body.category) {
+      await productsCategoriesModel.create({
+        categoryId: req.body.category,
+        productId,
+      });
+    }
+    if (req.body.categories) {
+      await productsCategoriesModel.bulkCreate(
+        req.body.categories.map((category) => {
+          return {
+            categoryId: category,
+            productId,
+          };
+        })
+      );
+    }
+    res.status(201).send({ id: productId });
   } catch (err) {
     next(err);
   }
@@ -89,6 +114,18 @@ productsRouter.put("/:productid", async (req, res, next) => {
         )
       );
     }
+  } catch (err) {
+    next(err);
+  }
+});
+
+productsRouter.put("/:productid/category", async (req, res, next) => {
+  try {
+    const { productId } = await productsCategoriesModel.create({
+      productId: req.params.productid,
+      categoryId: req.body.categoryId,
+    });
+    res.status(201).send({ id: productId });
   } catch (err) {
     next(err);
   }

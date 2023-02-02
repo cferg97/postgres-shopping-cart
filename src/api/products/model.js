@@ -1,8 +1,10 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../../db.js";
+import categoriesModel from "./category/model.js";
+import productsCategoriesModel from "./productsCategoryModel.js";
 
 const productsModel = sequelize.define("product", {
-  id: {
+  productId: {
     type: DataTypes.UUID,
     primaryKey: true,
     defaultValue: DataTypes.UUIDV4,
@@ -23,14 +25,24 @@ const productsModel = sequelize.define("product", {
     type: DataTypes.DECIMAL(10, 1),
     allowNull: false,
   },
-  category: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
+  // category: {
+  //   type: DataTypes.STRING,
+  //   allowNull: false,
+  // },
   imageUrl: {
     type: DataTypes.STRING,
     allowNull: false,
   },
+});
+
+productsModel.belongsToMany(categoriesModel, {
+  through: productsCategoriesModel,
+  foreignKey: { name: "productId", allowNull: false },
+});
+
+categoriesModel.belongsToMany(productsModel, {
+  through: productsCategoriesModel,
+  foreignKey: { name: "categoryId", allowNull: false },
 });
 
 export default productsModel;
