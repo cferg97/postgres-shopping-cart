@@ -10,6 +10,7 @@ import {
   unauthorizedErrorHandler,
 } from "./errorHandler.js";
 import productsRouter from "./api/products/index.js";
+import categoriesRouter from "./api/products/category/index.js";
 
 const server = express();
 const port = process.env.PORT;
@@ -18,6 +19,7 @@ server.use(cors());
 server.use(express.json());
 
 server.use("/products", productsRouter);
+server.use("/categories", categoriesRouter);
 
 await pgConnect();
 await syncModels();
