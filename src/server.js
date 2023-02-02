@@ -11,6 +11,7 @@ import {
 } from "./errorHandler.js";
 import productsRouter from "./api/products/index.js";
 import categoriesRouter from "./api/products/category/index.js";
+import usersRouter from "./api/products/users/index.js";
 
 const server = express();
 const port = process.env.PORT;
@@ -20,6 +21,7 @@ server.use(express.json());
 
 server.use("/products", productsRouter);
 server.use("/categories", categoriesRouter);
+server.use("/users", usersRouter);
 
 await pgConnect();
 await syncModels();
